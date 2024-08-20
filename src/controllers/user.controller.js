@@ -54,8 +54,8 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar is required!")
     }
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    const avatar = await uploadOnCloudinary(avatarLocalPath, "avatar")
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath, "coverimage")
     if (!avatar) {
         throw new ApiError(400, "Avatar is required!")
     }
@@ -63,9 +63,15 @@ const registerUser = asyncHandler(async (req, res) => {
     const user = await User.create({
         username: username.toLowerCase(),
         email: email.toLowerCase(),
-        avatar: avatar.url,
+        avatar: {
+            public_id: avatar.public_id,
+            url: avatar.url
+        },
         fullname,
-        coverImage: coverImage?.url || "",
+        coverImage: {
+            public_id: coverImage?.public_id || "",
+            url: coverImage?.url || "" 
+        },
         password,
     })
 
@@ -280,7 +286,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar is missing!")
     }
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
+    const avatar = await uploadOnCloudinary(avatarLocalPath, "avatar")
     if (!avatar.url) {
         throw new ApiError(400, "Error while uploading avatar!")
     }
@@ -321,7 +327,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Cover-Image is missing!")
     }
 
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath, "coverimage")
     if (!coverImage.url) {
         throw new ApiError(400, "Error while uploading Cover-Image!")
     }
